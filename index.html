@@ -1,1 +1,783 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fourqua — Roblox Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style> /* too lazy to add tons of code comments */
+  :root {
+    --bg: #f7f5f1;
+    --card: #ffffff;
+    --border: #e8e3db;
+    --text: #111111;
+    --muted: #888880;
+    --accent: #2563eb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* header */
+  header {
+    padding: 72px 64px 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s 0.05s ease forwards;
+  }
+
+  .header-name em { font-style: italic; color: var(--muted); }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--muted);
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s 0.18s ease forwards;
+  }
+
+  .header-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    align-items: flex-end;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s ease forwards;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .pill-dark { background: #111; color: #f7f5f1; }
+  .pill-outline { border: 1.5px solid var(--border); color: var(--muted); background: none; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,241,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 64px;
+    display: flex;
+    gap: 32px;
+    z-index: 50;
+  }
+
+  nav a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 14px 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* section */
+  section {
+    padding: 72px 64px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .video-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  .video-card.visible { animation: cardIn 0.45s ease forwards; }
+
+  .video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.1);
+    border-color: #ccc;
+  }
+
+  .video-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #f0ece5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .video-card:hover .video-thumb { background: #e8e3da; }
+
+  .video-thumb i {
+    font-size: 36px;
+    color: #bbb;
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .video-card:hover .video-thumb i {
+    color: var(--accent);
+    transform: scale(1.1);
+  }
+
+  .video-thumb .open-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bbb;
+    transition: color 0.2s;
+  }
+
+  .video-card:hover .video-thumb .open-label { color: var(--accent); }
+
+  .ext-icon {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 11px;
+    color: #ccc;
+    transition: color 0.2s;
+  }
+
+  .video-card:hover .ext-icon { color: var(--accent); }
+
+  .video-info {
+    padding: 13px 16px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .video-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .video-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    background: #f2ede6;
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 72px;
+    align-items: start;
+  }
+
+  .about-text p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 28px;
+  }
+
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 13px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: #555;
+    background: var(--card);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .chip:hover { border-color: #999; color: var(--text); }
+
+  .sidebar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+
+  .sidebar-label:first-child { margin-top: 0; }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.15s;
+  }
+
+  .link-btn:first-of-type { border-top: 1px solid var(--border); }
+  .link-btn:hover { color: var(--accent); }
+
+  .discord-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .discord-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #5865f2;
+    flex-shrink: 0;
+  }
+
+  .affil-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .affil-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .affil-card.visible { animation: cardIn 0.45s ease forwards; }
+
+  .affil-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.09);
+    border-color: #ccc;
+  }
+
+  .affil-icon {
+    width: 44px; height: 44px;
+    background: #f2ede6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--muted);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .affil-card:hover .affil-icon { background: #111; color: #fff; }
+
+  .affil-name {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .affil-old {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .affil-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  .affil-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .affil-stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .affil-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .affil-stat-num {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .affil-link-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    transition: color 0.2s;
+  }
+
+  .affil-card:hover .affil-link-row { color: var(--accent); }
+
+  footer {
+    padding: 32px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* anims */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes cardIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 960px) {
+    header, nav, section, footer { padding-left: 28px; padding-right: 28px; }
+    header { padding-top: 48px; padding-bottom: 40px; }
+    .header-name { font-size: 48px; }
+    .video-grid { grid-template-columns: 1fr 1fr; }
+    .affil-grid { grid-template-columns: 1fr 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 48px; }
+  }
+
+  @media (max-width: 560px) {
+    .video-grid, .affil-grid { grid-template-columns: 1fr; }
+    .header-tags { align-items: flex-start; }
+    footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 class="header-name">Fourqua <em>dev</em></h1>
+    <p class="header-sub">Roblox Developer &nbsp;|&nbsp; Scripting for 2+ years</p>
+  </div>
+  <div class="header-tags">
+    <span class="pill pill-dark">Roblox Developer</span>
+    <span class="pill pill-outline">Open to Projects</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#showcase">Showcase</a>
+  <a href="#about">About</a>
+  <a href="#affiliations">Affiliations</a>
+</nav>
+
+<section id="showcase">
+  <div class="section-label">Showcase</div>
+  <div class="video-grid">
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdHdDGCirBctJLfR" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Gen Game</span>
+        <span class="video-type">Gameplay</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdArxm5EmKyVxOQm" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Different Ending Game</span>
+        <span class="video-type">Gameplay</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdvOhio7NSQ7OMM5" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-person-running"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Advanced Movement</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdrpMnAm27YqCySa" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Angry Birds Brainrot Game</span>
+        <span class="video-type">Gameplay</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdlBR0EnDrwxT4JS" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-house"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">House System</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdgGqCPlumQi6krZ" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-gun"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Simple Pistol</span>
+        <span class="video-type">Combat</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRde9K2PIouKmQK8o" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-mask"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Simple Rob System</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRd724cGXZALRC-a_" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-hill-rockslide"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Rock Throwing</span>
+        <span class="video-type">Mechanic</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRd3WbmEdU0a-iU7r" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Inventory / Buying</span>
+        <span class="video-type">UI System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRd2Z8Nvwi9Xfc56y" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-hammer"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Mining (Fisch Style)</span>
+        <span class="video-type">Gameplay</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRcY5ZcyzBsausrEd" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-person-walking"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Simple Movement</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://medal.tv/games/roblox-studio/clips/mRdNOo422YuI3BTWl" target="_blank">
+      <div class="video-thumb">
+        <i class="fa-solid fa-seedling"></i>
+        <span class="open-label">Watch Clip</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Farming / Selling / UI</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+    <a class="video-card" href="https://www.youtube.com/watch?v=dT0T3G2GdnQ" target="_blank">
+      <div class="video-thumb" style="background:#fff0f0;">
+        <i class="fa-brands fa-youtube" style="color:#ff0000;font-size:38px;"></i>
+        <span class="open-label">Watch on YouTube</span>
+        <i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+      </div>
+      <div class="video-info">
+        <span class="video-title">Simple RNG System</span>
+        <span class="video-type">System</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-label">About</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Hey! I'm Fourqua, a Roblox developer focused on making games and experiences for everyone. I specialize in almost every scripting aspect such as player movement, game mechanics, and UI systems. I'm currently building my own full games by myself, however, I'm open to working on projects for others as well.</p>
+      <div class="skill-chips">
+        <span class="chip">Lua</span>
+        <span class="chip">Server Scripts</span>
+        <span class="chip">Module Scripts</span>
+        <span class="chip">Local Scripts</span>
+        <span class="chip">Roblox Studio</span>
+        <span class="chip">Full Stack</span>
+        <span class="chip">Robux</span>
+        <span class="chip">Game Percentage</span>
+      </div>
+    </div>
+    <div>
+      <div class="sidebar-label">Links</div>
+      <a class="link-btn" href="https://www.roblox.com/users/8599316688/profile" target="_blank">Roblox Profile <span>→</span></a>
+      <a class="link-btn" href="https://github.com/Fourqua" target="_blank">GitHub <span>→</span></a>
+      <div class="sidebar-label" style="margin-top:28px;">Discord</div>
+      <div class="discord-box">
+        <div class="discord-dot"></div>
+        787631941775392779
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="affiliations">
+  <div class="section-label">Studio Affiliations</div>
+  <div class="affil-grid">
+
+    <a class="affil-card" href="https://www.roblox.com/communities/32487083/Stargame-Studio#!/about" target="_blank">
+      <div>
+        <div class="affil-icon"><i class="fa-solid fa-star"></i></div>
+      </div>
+      <div>
+        <div class="affil-name">Stargame Studio</div>
+        <div class="affil-role">Backend Scripter</div>
+      </div>
+      <div class="affil-stats">
+        <div class="affil-stat-row">
+          <span class="affil-stat-label">Members</span>
+          <span class="affil-stat-num">550+</span>
+        </div>
+      </div>
+      <div class="affil-link-row">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        View Studio
+      </div>
+    </a>
+
+    <a class="affil-card" href="https://www.roblox.com/communities/6550041/CharlieStudios#!/about" target="_blank">
+      <div>
+        <div class="affil-icon"><i class="fa-solid fa-film"></i></div>
+      </div>
+      <div>
+        <div class="affil-name">Charlie Studios <span class="affil-old">(OLD)</span></div>
+        <div class="affil-role">Fullstack Scripter</div>
+      </div>
+      <div class="affil-stats">
+        <div class="affil-stat-row">
+          <span class="affil-stat-label">Members</span>
+          <span class="affil-stat-num">104k+</span>
+        </div>
+        <div class="affil-stat-row">
+          <span class="affil-stat-label">Visits Contributed</span>
+          <span class="affil-stat-num">7.1M</span>
+        </div>
+      </div>
+      <div class="affil-link-row">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        View Studio
+      </div>
+    </a>
+
+    <a class="affil-card" href="https://www.roblox.com/communities/5760667/KZ#!/about" target="_blank">
+      <div>
+        <div class="affil-icon"><i class="fa-solid fa-bolt"></i></div>
+      </div>
+      <div>
+        <div class="affil-name">KZO! <span class="affil-old">(OLD)</span></div>
+        <div class="affil-role">Scripter</div>
+      </div>
+      <div class="affil-stats">
+        <div class="affil-stat-row">
+          <span class="affil-stat-label">Members</span>
+          <span class="affil-stat-num">8k+</span>
+        </div>
+      </div>
+      <div class="affil-link-row">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        View Studio
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Fourqua</span>
+  <span>Roblox Developer</span>
+</footer>
+
+<script>
+  const allCards = document.querySelectorAll('.video-card, .affil-card');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const siblings = [...card.parentElement.children];
+        const i = siblings.indexOf(card);
+        setTimeout(() => card.classList.add('visible'), i * 70);
+        observer.unobserve(card);
+      }
+    });
+  }, { threshold: 0.08 });
+  allCards.forEach(c => observer.observe(c));
+
+  // active nav
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const navObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => navObs.observe(s));
+</script>
+</body>
+</html>
